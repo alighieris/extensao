@@ -1,0 +1,146 @@
+<script>
+  function mascaraCPF(input) {
+    let v = input.value.replace(/\D/g, "");
+    if (v.length > 3) v = v.replace(/^(\d{3})(\d)/, "$1.$2");
+    if (v.length > 6) v = v.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    if (v.length > 9)
+      v = v.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+    input.value = v;
+  }
+  function mascaraTelefone(input) {
+    let v = input.value.replace(/\D/g, "");
+    if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "($1) $2");
+    if (v.length > 7)
+      v = v.replace(/^(\(\d{2}\) \d{1})(\d{4})(\d)/, "$1 $2-$3");
+    else if (v.length > 6)
+      v = v.replace(/^(\(\d{2}\) \d{1})(\d{3})(\d)/, "$1 $2-$3");
+    input.value = v;
+  }
+  function mascaraData(input) {
+    let v = input.value.replace(/\D/g, "");
+    if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1-$2");
+    if (v.length > 4) v = v.replace(/^(\d{2})-(\d{2})(\d)/, "$1-$2-$3");
+    input.value = v;
+  }
+  function validarData(data) {
+    // dd-MM-yyyy
+    var regex = /^(\d{2})-(\d{2})-(\d{4})$/;
+    if (!regex.test(data)) return false;
+    var partes = data.split("-");
+    var dia = parseInt(partes[0], 10);
+    var mes = parseInt(partes[1], 10);
+    var ano = parseInt(partes[2], 10);
+    var dt = new Date(ano, mes - 1, dia);
+    return (
+      dt.getDate() === dia &&
+      dt.getMonth() + 1 === mes &&
+      dt.getFullYear() === ano
+    );
+  }
+
+  function proximaPagina() {
+    var isChefe = document.getElementById("chefe").checked;
+    document.getElementById("pagina1").style.display = "none";
+    document.getElementById("previous").style.display = "inline";
+    document.getElementById("next").style.display = "none";
+
+    if (isChefe) {
+      document.getElementById("paginaChefeFamilia").style.display = "inline";
+      document.getElementById("endereco").required = true;
+    } else {
+      document.getElementById("paginaMembroFamilia").style.display = "inline";
+      document.getElementById("cpf_chefe_familia").required = true;
+    }
+    document.getElementById("next").style.display = "none";
+    document.getElementById("save").style.display = "inline";
+  }
+
+  function voltarPagina() {
+    document.getElementById("pagina1").style.display = "inline";
+    document.getElementById("previous").style.display = "none";
+    document.getElementById("next").style.display = "inline";
+    document.getElementById("save").style.display = "none";
+    document.getElementById("paginaMembroFamilia").style.display = "none";
+    document.getElementById("paginaChefeFamilia").style.display = "none";
+    document.getElementById("cpf_chefe_familia").value = "";
+    document.getElementById("endereco").value = "";
+    document.getElementById("endereco").required = false;
+    document.getElementById("cpf_chefe_familia").required = false;
+  }
+  function validarCPF(cpf) {
+    /*cpf = cpf.replace(/\D/g, '');
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+        let soma = 0, resto;
+        for (let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+        resto = (soma * 10) % 11;
+        if ((resto === 10) || (resto === 11)) resto = 0;
+        if (resto !== parseInt(cpf.substring(9, 10))) return false;
+        soma = 0;
+        for (let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+        resto = (soma * 10) % 11;
+        if ((resto === 10) || (resto === 11)) resto = 0;
+        if (resto !== parseInt(cpf.substring(10, 11))) return false;
+        return true;*/
+    return true;
+  }
+  function salvar() {
+    var campos = [
+      "cpf",
+      "rg",
+      "nis",
+      "nome",
+      "sexo",
+      "data_nascimento",
+      "telefone",
+    ];
+    var dados = {};
+    var msg = "";
+    campos.forEach(function (campo) {
+      var valor = document.getElementById(campo).value.trim();
+      if (!valor)
+        msg += `O campo ${campo.replace("_", " ")} é obrigatório.<br>`;
+      dados[campo] = valor;
+    });
+    dados["is_chefe"] = document.getElementById("chefe").checked;
+    dados["nome_social"] = document.getElementById("nome_social").value.trim();
+    if (dados["is_chefe"]) {
+      var endereco = document.getElementById("endereco").value.trim();
+      if (!endereco) msg += "O campo endereço é obrigatório.<br>";
+      dados["endereco"] = endereco;
+      dados["cpf_chefe_familia"] = dados["cpf"];
+    } else {
+      var cpfChefe = document.getElementById("cpf_chefe_familia").value.trim();
+      if (!cpfChefe) msg += "O campo CPF Chefe da Família é obrigatório.<br>";
+      dados["cpf_chefe_familia"] = cpfChefe;
+    }
+
+    // Validação CPF
+    if (dados.cpf && !validarCPF(dados.cpf)) msg += "CPF inválido.<br>";
+    if (dados.cpf_chefe_familia && !validarCPF(dados.cpf_chefe_familia))
+      msg += "CPF Chefe da Família inválido.<br>";
+    // Validação data
+    if (dados.data_nascimento && !validarData(dados.data_nascimento))
+      msg += "Data de nascimento inválida.<br>";
+
+    if (msg) {
+      document.getElementById("msg").innerHTML = msg;
+      document.getElementById("msg").style.color = "red";
+      return;
+    }
+
+    google.script.run
+      .withSuccessHandler(function (resp) {
+        if (resp.sucesso) {
+          document.getElementById("msg").style.color = "green";
+          document.getElementById("msg").innerText = resp.mensagem;
+          setTimeout(function () {
+            google.script.host.close();
+          }, 500);
+        } else {
+          document.getElementById("msg").style.color = "red";
+          document.getElementById("msg").innerText = resp.mensagem;
+        }
+      })
+      .salvarCadastroCompleto(dados);
+  }
+</script>

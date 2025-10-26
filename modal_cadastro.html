@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
+    <style>
+      body,
+      html {
+        max-width: 100vw;
+        max-height: 100vh;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+      }
+      label.required::after {
+        content: " *";
+        color: red;
+      }
+      div.pagina {
+        margin-left: 16px;
+        margin-right: 16px;
+      }
+      input,
+      select {
+        width: 95%;
+        padding: 5px;
+      }
+      button {
+        margin-top: 15px;
+      }
+      #msg {
+        color: red;
+        margin-top: 10px;
+      }
+      .is-invalid {
+        border-color: #dc3545;
+        background-color: #f8d7da;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="cadastroPessoaForm" onsubmit="event.preventDefault(); salvar();">
+      <!-- Página 1: cadastroPessoa -->
+      <div id="cadastroPessoa" class="container pagina" style="display: block">
+        <div class="row">
+          <div class="col-md-6">
+            <label class="required">Nome:</label>
+            <input type="text" id="nome" required class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label>Nome Social:</label>
+            <input type="text" id="nome_social" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="required">CPF:</label>
+            <input
+              type="text"
+              id="cpf"
+              maxlength="14"
+              required
+              oninput="mascaraCPF(this)"
+              onblur="validarNovoCPF()"
+              class="form-control"
+            />
+            <div id="cpf-pessoa-erro" style="color: red; display: none"></div>
+          </div>
+          <div class="col-md-6">
+            <label class="required">RG:</label>
+            <input type="text" id="rg" required class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="required">Sexo:</label>
+            <select id="sexo" required class="form-select">
+              <option value="">Selecione</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Feminino">Feminino</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="required">Data de Nascimento:</label>
+            <input
+              type="text"
+              id="data_nascimento"
+              maxlength="10"
+              required
+              placeholder="dd-MM-yyyy"
+              oninput="mascaraData(this)"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="required">Cor:</label>
+            <select id="id_cor" class="form-select" required>
+              <option value="" selected>Selecione</option>
+              <option value="1">Branco</option>
+              <option value="2">Pardo</option>
+              <option value="3">Preto</option>
+              <option value="4">Indígena</option>
+              <option value="5">Amarelo</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label>Naturalidade:</label>
+            <input type="text" id="naturalidade" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="required">É chefe de família?</label>
+            <select id="chefe" class="form-select">
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Página 2: infoAdicionalPessoa -->
+      <div
+        id="infoAdicionalPessoa"
+        class="container pagina"
+        style="display: none"
+      >
+        <div class="row" id="row-cpf-chefe-familia" style="display: none">
+          <div class="col-md-6">
+            <label class="required">CPF do Chefe da Família:</label>
+            <input
+              type="text"
+              id="cpf_chefe_familia"
+              maxlength="14"
+              class="form-control"
+              oninput="mascaraCPF(this)"
+              onblur="validarCPFChefeFamilia()"
+              required
+            />
+            <div id="cpf-chefe-familia-erro" style="color: red; display: none">
+              CPF não encontrado na base.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="required">Parentesco com o chefe da família:</label>
+            <select id="id_parentesco" class="form-select" required>
+              <option value="1">Filho(a)</option>
+              <option value="2">Cônjuge</option>
+              <option value="3">Pai</option>
+              <option value="4">Mãe</option>
+              <option value="5">Irmão(ã)</option>
+              <option value="6">Tio(a)</option>
+              <option value="7">Sobrinho(a)</option>
+              <option value="8">Primo(a)</option>
+              <option value="9">Avô(ó)</option>
+              <option value="10">Neto(a)</option>
+              <option value="99">Outro</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="required">Telefone:</label>
+            <input
+              type="text"
+              id="telefone"
+              maxlength="16"
+              required
+              oninput="mascaraTelefone(this)"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="required">Estado Civil:</label>
+            <select id="estado_civil" required class="form-select">
+              <option value="">Selecione</option>
+              <option value="Solteiro(a)">Solteiro(a)</option>
+              <option value="Casado(a)">Casado(a)</option>
+              <option value="Divorciado(a)">Divorciado(a)</option>
+              <option value="Viúvo(a)">Viúvo(a)</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="required">Escolaridade:</label>
+            <select id="escolaridade" required class="form-select">
+              <option value="" selected>Selecione</option>
+              <option value="1">Ensino Fundamental Incompleto</option>
+              <option value="2">Ensino Fundamental Completo</option>
+              <option value="3">Ensino Médio Incompleto</option>
+              <option value="4">Ensino Médio Completo</option>
+              <option value="5">Ensino Superior Incompleto</option>
+              <option value="6">Ensino Superior Completo</option>
+              <option value="7">Pós-Graduação Incompleta</option>
+              <option value="8">Pós-Graduação Completa</option>
+              <option value="9">Educação de Jovens e Adultos (EJA)</option>
+              <option value="99">Outro</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label>Profissão:</label>
+            <input type="text" id="profissao" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label>Renda:</label>
+            <input
+              type="text"
+              id="renda"
+              class="form-control"
+              min="0"
+              oninput="mascaraMoedaBRL(this)"
+              placeholder="R$ 0,00"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Página 3: enderecoDomicilio (apenas se chefe == true) -->
+      <div
+        id="enderecoDomicilio"
+        class="container pagina"
+        style="display: none"
+      >
+        <div class="row">
+          <div class="col-md-4">
+            <label class="required">Cidade:</label>
+            <input type="text" id="cidade" required class="form-control" />
+          </div>
+          <div class="col-md-4">
+            <label class="required">Bairro:</label>
+            <input type="text" id="bairro" required class="form-control" />
+          </div>
+          <div class="col-md-4">
+            <label class="required">CEP:</label>
+            <input
+              type="text"
+              id="cep"
+              required
+              class="form-control"
+              oninput="mascaraCEP(this)"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <label class="required">Logradouro:</label>
+            <input type="text" id="logradouro" required class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <label class="required">Referência:</label>
+            <input type="text" id="referencia" required class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <label class="required">Tipo de Construção:</label>
+            <select id="tipo_construcao" required class="form-select">
+              <option value="">Selecione</option>
+              <option value="Alvenaria">Alvenaria</option>
+              <option value="Madeira">Madeira</option>
+              <option value="Mista">Mista</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div class="col-md-8">
+            <label>Observação:</label>
+            <input
+              type="text"
+              id="tipo_construcao_outro"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <label class="required">Condição do domicílio:</label>
+            <select id="condicao_domicilio" required class="form-select">
+              <option value="">Selecione</option>
+              <option value="Próprio">Próprio</option>
+              <option value="Alugado">Alugado</option>
+              <option value="Cedido">Cedido</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div class="col-md-8">
+            <label>Observação:</label>
+            <input
+              type="text"
+              id="tipo_construcao_outro"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label>Valor do Aluguel:</label>
+            <input
+              type="text"
+              id="valor_aluguel"
+              class="form-control"
+              min="0"
+              value="0"
+              oninput="mascaraMoedaBRL(this)"
+              placeholder="R$ 0,00"
+            />
+          </div>
+          <div class="col-md-3">
+            <label>Nº de Cômodos:</label>
+            <input
+              type="number"
+              id="numero_comodos"
+              class="form-control"
+              min="1"
+            />
+          </div>
+          <div class="col-md-3">
+            <label>Nº de Casas no Lote:</label>
+            <input
+              type="number"
+              id="numero_casas_lote"
+              class="form-control"
+              min="1"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Página 4: vulnerabilidade -->
+      <div id="vulnerabilidade" class="container pagina" style="display: none">
+        <div class="row">
+          <div class="col-12">
+            <label>Vulnerabilidades:</label>
+            <div id="vulnerabilidades-checkbox-group">
+              <!-- Os checkboxes serão inseridos via script -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Página 5: vulnerabilidade -->
+      <div id="beneficios" class="container pagina" style="display: none">
+        <div class="row">
+          <div class="col-12">
+            <label>Benefícios:</label>
+            <div id="beneficios-checkbox-group">
+              <!-- Os checkboxes serão inseridos via script -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Página 6: observações -->
+      <div id="observacoes" class="container pagina" style="display: none">
+        <div class="row">
+          <div class="col-12">
+            <label>Observações:</label>
+            <textarea
+              id="observacoes_texto"
+              class="form-control"
+              rows="4"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="msg"></div>
+      <div class="row">
+        <div class="col-md-4" style="margin-left: 30px">
+          <button
+            id="previous"
+            type="button"
+            onclick="voltarPagina()"
+            style="display: none"
+            class="btn btn-secondary"
+          >
+            Voltar
+          </button>
+          <button
+            id="next"
+            type="button"
+            onclick="proximaPagina()"
+            class="btn btn-primary"
+          >
+            Próximo
+          </button>
+          <button
+            id="save"
+            type="submit"
+            style="display: none"
+            class="btn btn-success"
+          >
+            Salvar
+          </button>
+        </div>
+      </div>
+    </form>
+    <script>
+      //NAVEGAÇÃO ENTRE PÁGINAS
+      // IDs das páginas na ordem de navegação
+      const paginas = [
+        "cadastroPessoa",
+        "infoAdicionalPessoa",
+        "enderecoDomicilio", // só se chefe == true
+        "vulnerabilidade",
+        "beneficios", // só se chefe == true
+        "observacoes",
+      ];
+      let paginaAtual = 0;
+      let fullLoad = false;
+      let fullLoadBeneficios = false;
+      let cpfChefeValido = false;
+      let cpfPessoaValido = false;
+      function mostrarPagina(index, direction) {
+        // Oculta todas as páginas
+        paginas.forEach(function (id, i) {
+          const el = document.getElementById(id);
+          if (el) el.style.display = "none";
+        });
+
+        // Lógica para pular enderecoDomicilio se não for chefe
+        const chefe = document.getElementById("chefe").value === "true";
+        if (paginas[index] === "enderecoDomicilio") {
+          if (!chefe) {
+            const camposEndereco = [
+              "cidade",
+              "bairro",
+              "cep",
+              "logradouro",
+              "referencia",
+              "tipo_construcao",
+              "condicao_domicilio",
+              "numero_comodos",
+              "numero_casas_lote",
+              "valor_aluguel",
+            ];
+            camposEndereco.forEach(function (id) {
+              const campo = document.getElementById(id);
+              if (campo) campo.required = chefe;
+            });
+            if (direction === "next") {
+              paginaAtual++;
+              mostrarPagina(paginaAtual);
+              return;
+            } else if (direction === "previous") {
+              paginaAtual--;
+              mostrarPagina(paginaAtual);
+              return;
+            }
+          }
+        }
+        // Adiciona validação imediata aos campos required da página atual
+        const pagina = document.getElementById(paginas[index]);
+        if (pagina) adicionarValidacaoImediata(pagina);
+        // Exibe página atual
+        const atual = document.getElementById(paginas[index]);
+
+        if (atual) atual.style.display = "block";
+
+        // Botões
+        document.getElementById("previous").style.display =
+          paginaAtual > 0 ? "inline" : "none";
+        document.getElementById("next").style.display =
+          paginaAtual < paginas.length - 1 ? "inline" : "none";
+        document.getElementById("save").style.display =
+          paginaAtual === paginas.length - 1 ? "inline" : "none";
+
+        // Carregar vulnerabilidades ao entrar na página (async)
+
+        if (paginas[index] === "infoAdicionalPessoa") {
+          const rowCPFChefe = document.getElementById("row-cpf-chefe-familia");
+          if (!chefe) {
+            rowCPFChefe.style.display = "flex";
+            document.getElementById("cpf_chefe_familia").required = true;
+            document.getElementById("id_parentesco").required = true;
+          } else {
+            rowCPFChefe.style.display = "none";
+            document.getElementById("cpf_chefe_familia").required = false;
+            document.getElementById("id_parentesco").required = false;
+          }
+        }
+        if (paginas[index] === "infoAdicionalPessoa" && !fullLoad) {
+          carregarVulnerabilidades();
+          carregarBeneficios();
+          fullLoadBeneficios = true;
+          fullLoad = true;
+        }
+      }
+
+      function proximaPagina() {
+        // Seleciona todos os campos required visíveis na página atual
+        const paginaId = paginas[paginaAtual];
+        const pagina = document.getElementById(paginaId);
+        const requiredFields = pagina.querySelectorAll("[required]");
+        let valid = true;
+        requiredFields.forEach(function (field) {
+          // Só valida campos visíveis
+          if (
+            field.offsetParent !== null &&
+            (field.value === "" || field.value === null)
+          ) {
+            valid = false;
+            field.classList.add("is-invalid");
+          } else {
+            field.classList.remove("is-invalid");
+          }
+        });
+
+        // Validação especial para CPF do chefe de família se necessário
+        if (
+          paginaId === "infoAdicionalPessoa" &&
+          document.getElementById("chefe").value !== "true"
+        ) {
+          console.log("cpfChefe na validação", cpfChefeValido);
+          if (!cpfChefeValido) {
+            document.getElementById("cpf-chefe-familia-erro").innerText =
+              "CPF do chefe de família deve ser válido e existente.";
+            document.getElementById("cpf-chefe-familia-erro").style.display =
+              "block";
+            valid = false;
+          }
+        }
+        valid = valid && cpfPessoaValido;
+
+        if (!valid) {
+          return;
+        }
+
+        if (paginaAtual < paginas.length - 1) {
+          paginaAtual++;
+          mostrarPagina(paginaAtual, "next");
+        }
+      }
+
+      function voltarPagina() {
+        if (paginaAtual > 0) {
+          paginaAtual--;
+          mostrarPagina(paginaAtual, "previous");
+        }
+      }
+      function adicionarValidacaoImediata(pagina) {
+        console.log("Adicionando validação imediata", pagina);
+        const requiredFields = pagina.querySelectorAll("[required]");
+        requiredFields.forEach(function (field) {
+          field.addEventListener("input", function () {
+            if (field.value !== "" && field.value !== null) {
+              field.classList.remove("is-invalid");
+            }
+          });
+        });
+      }
+      function validarNovoCPF() {
+        const cpfInput = document.getElementById("cpf");
+        const cpf = cpfInput.value;
+        if (!validarCPF(cpf)) {
+          cpfInput.classList.add("is-invalid");
+          document.getElementById("cpf-pessoa-erro").innerText =
+            "CPF inválido.";
+          document.getElementById("cpf-pessoa-erro").style.display = "block";
+          cpfPessoaValido = false;
+          return;
+        } else {
+          cpfInput.classList.remove("is-invalid");
+          document.getElementById("cpf-pessoa-erro").style.display = "none";
+          document.getElementById("cpf-pessoa-erro").innerText = "";
+          cpfPessoaValido = true;
+        }
+        // Verifica se o CPF já existe na base
+        cpfPessoaValido = false;
+        document.getElementById("cpf-pessoa-erro").style.display = "block";
+        document.getElementById("cpf-pessoa-erro").innerText = "Validando...";
+        google.script.run
+          .withSuccessHandler(function (existe) {
+            if (existe) {
+              cpfInput.classList.add("is-invalid");
+              document.getElementById("cpf-pessoa-erro").style.display =
+                "block";
+              document.getElementById("cpf-pessoa-erro").innerText =
+                "CPF já cadastrado na base.";
+              cpfPessoaValido = false;
+            } else {
+              cpfInput.classList.remove("is-invalid");
+              document.getElementById("cpf-pessoa-erro").style.display = "none";
+              document.getElementById("cpf-pessoa-erro").innerText = "";
+              cpfPessoaValido = true;
+            }
+          })
+          .validaCPFExistente(cpf);
+      }
+      function validarCPFChefeFamilia() {
+        const chefe = document.getElementById("chefe").value === "true";
+        if (!chefe) {
+          const cpfChefe = document.getElementById("cpf_chefe_familia").value;
+          if (!cpfChefe || !validarCPF(cpfChefe)) {
+            document.getElementById("cpf-chefe-familia-erro").innerText =
+              "CPF inválido.";
+            document.getElementById("cpf-chefe-familia-erro").style.display =
+              "block";
+            cpfChefeValido = false;
+            return;
+          }
+          document.getElementById("cpf-chefe-familia-erro").style.display =
+            "block";
+          document.getElementById("cpf-chefe-familia-erro").innerText =
+            "Validando...";
+          google.script.run
+            .withSuccessHandler(function (existe) {
+              console.log("existee", existe);
+              if (!existe) {
+                console.log("if");
+                document.getElementById("cpf-chefe-familia-erro").innerText =
+                  "CPF não encontrado na base.";
+                document.getElementById(
+                  "cpf-chefe-familia-erro"
+                ).style.display = "block";
+                cpfChefeValido = false;
+              } else {
+                console.log("else");
+                document.getElementById(
+                  "cpf-chefe-familia-erro"
+                ).style.display = "none";
+                cpfChefeValido = true;
+              }
+            })
+            .validaCPFExistente(cpfChefe);
+        } else {
+          cpfChefeValido = true;
+          document.getElementById("cpf-chefe-familia-erro").style.display =
+            "none";
+        }
+      }
+      // Inicialização
+      document.addEventListener("DOMContentLoaded", function () {
+        mostrarPagina(paginaAtual);
+      });
+    </script>
+    <script>
+      function mascaraCPF(input) {
+        let v = input.value.replace(/\D/g, "");
+        if (v.length > 3) v = v.replace(/^(\d{3})(\d)/, "$1.$2");
+        if (v.length > 6) v = v.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+        if (v.length > 9)
+          v = v.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+        input.value = v;
+      }
+      function mascaraMoedaBRL(input) {
+        let v = input.value.replace(/\D/g, "");
+        v = (v / 100).toFixed(2) + "";
+        v = v.replace(".", ",");
+        v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+        input.value = "R$ " + v;
+      }
+      function mascaraTelefone(input) {
+        let v = input.value.replace(/\D/g, "");
+        if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "($1) $2");
+        if (v.length > 7)
+          v = v.replace(/^(\(\d{2}\) \d{1})(\d{4})(\d)/, "$1 $2-$3");
+        else if (v.length > 6)
+          v = v.replace(/^(\(\d{2}\) \d{1})(\d{3})(\d)/, "$1 $2-$3");
+        input.value = v;
+      }
+      function mascaraData(input) {
+        let v = input.value.replace(/\D/g, "");
+        if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1-$2");
+        if (v.length > 4) v = v.replace(/^(\d{2})-(\d{2})(\d)/, "$1-$2-$3");
+        input.value = v;
+      }
+      function mascaraCEP(input) {
+        let v = input.value.replace(/\D/g, "");
+        if (v.length > 5) v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+        input.value = v;
+      }
+      function validarData(data) {
+        // dd-MM-yyyy
+        var regex = /^(\d{2})-(\d{2})-(\d{4})$/;
+        if (!regex.test(data)) return false;
+        var partes = data.split("-");
+        var dia = parseInt(partes[0], 10);
+        var mes = parseInt(partes[1], 10);
+        var ano = parseInt(partes[2], 10);
+        var dt = new Date(ano, mes - 1, dia);
+        return (
+          dt.getDate() === dia &&
+          dt.getMonth() + 1 === mes &&
+          dt.getFullYear() === ano
+        );
+      }
+
+      function validarCPF(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, "");
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+          soma += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+        let resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(9))) return false;
+
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+          soma += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(10))) return false;
+
+        return true;
+      }
+
+      function coletarDadosFormulario() {
+        // Pessoa
+        const pessoa = {
+          cpf: document.getElementById("cpf").value,
+          chefe_familia: document.getElementById("chefe").value === "true",
+          cpf_chefe_familia:
+            document.getElementById("chefe").value === "true"
+              ? document.getElementById("cpf").value
+              : document.getElementById("cpf_chefe_familia")
+              ? document.getElementById("cpf_chefe_familia").value
+              : "",
+          id_parentesco:
+            document.getElementById("chefe").value === "true"
+              ? ""
+              : document.getElementById("id_parentesco")
+              ? Number(document.getElementById("id_parentesco").value)
+              : "",
+          rg: document.getElementById("rg").value,
+          nome: document.getElementById("nome").value,
+          nome_social: document.getElementById("nome_social").value,
+          data_nascimento: document.getElementById("data_nascimento").value,
+          sexo: document.getElementById("sexo").value,
+          telefone: document.getElementById("telefone").value,
+          nome_mae: document.getElementById("nome_mae")
+            ? document.getElementById("nome_mae").value
+            : "",
+          naturalidade: document.getElementById("naturalidade")
+            ? document.getElementById("naturalidade").value
+            : "",
+          id_cor: document.getElementById("id_cor")
+            ? Number(document.getElementById("id_cor").value)
+            : 0,
+          id_escolaridade: document.getElementById("escolaridade")
+            ? Number(document.getElementById("escolaridade").value)
+            : 0,
+          profissao: document.getElementById("profissao")
+            ? document.getElementById("profissao").value
+            : "",
+          renda: document.getElementById("renda").value,
+          estado_civil: document.getElementById("estado_civil").value,
+          observacao: document.getElementById("observacoes_texto")
+            ? document.getElementById("observacoes_texto").value
+            : "",
+          ativo: true,
+        };
+
+        // Endereco (apenas se chefe_familia)
+        let endereco = null;
+        if (pessoa.chefe_familia) {
+          endereco = {
+            cpf_chefe_familia: pessoa.cpf,
+            cidade: document.getElementById("cidade").value,
+            bairro: document.getElementById("bairro").value,
+            logradouro: document.getElementById("logradouro").value,
+            referencia: document.getElementById("referencia").value,
+            cep: document.getElementById("cep").value,
+          };
+        }
+
+        // Domicilio (apenas se chefe_familia)
+        let domicilio = null;
+        if (pessoa.chefe_familia) {
+          domicilio = {
+            cpf_chefe_familia: pessoa.cpf,
+            condicao_domicilio:
+              document.getElementById("condicao_domicilio").value,
+            condicao_domicilio_outro: document.getElementById(
+              "condicao_domicilio_outro"
+            )
+              ? document.getElementById("condicao_domicilio_outro").value
+              : "",
+            tipo_construcao: document.getElementById("tipo_construcao").value,
+            tipo_construcao_outro: document.getElementById(
+              "tipo_construcao_outro"
+            )
+              ? document.getElementById("tipo_construcao_outro").value
+              : "",
+            numero_comodos: Number(
+              document.getElementById("numero_comodos").value
+            ),
+            numero_casas_lote: Number(
+              document.getElementById("numero_casas_lote").value
+            ),
+            valor_aluguel: document.getElementById("valor_aluguel")
+              ? Number(document.getElementById("valor_aluguel").value)
+              : 0,
+          };
+        }
+
+        // PessoaVulnerabilidade (array)
+        const vulnerabilidades = [];
+        const checkboxes = document.querySelectorAll(
+          "#vulnerabilidades-checkbox-group input[type=checkbox]:checked"
+        );
+        checkboxes.forEach((cb) => {
+          const obsInput = document.getElementById("obs_vul_" + cb.value);
+          vulnerabilidades.push({
+            cpf: pessoa.cpf,
+            id_vulnerabilidade: Number(cb.value),
+            observacao_vulnerabilidade: obsInput ? obsInput.value : "",
+          });
+        });
+
+        // Beneficios (array)
+        const beneficios = [];
+        const benCheckboxes = document.querySelectorAll(
+          "#beneficios-checkbox-group input[type=checkbox]:checked"
+        );
+        benCheckboxes.forEach((cb) => {
+          const obsInput = document.getElementById("obs_ben_" + cb.value);
+          beneficios.push({
+            cpf: pessoa.cpf,
+            id_beneficio: Number(cb.value),
+            observacao_beneficio: obsInput ? obsInput.value : "",
+          });
+        });
+
+        return {
+          pessoa,
+          endereco,
+          domicilio,
+          vulnerabilidades,
+          beneficios,
+        };
+      }
+      // Busca e popula o grupo de checkboxes de vulnerabilidades usando tableToObject
+      function carregarVulnerabilidades() {
+        google.script.run
+          .withSuccessHandler(function (lista) {
+            var container = document.getElementById(
+              "vulnerabilidades-checkbox-group"
+            );
+            container.innerHTML = "";
+            lista.forEach(function (item) {
+              // Cria uma row para cada vulnerabilidade
+              var row = document.createElement("div");
+              row.className = "row align-items-center mb-2";
+
+              // Coluna do checkbox
+              var colCheck = document.createElement("div");
+              colCheck.className = "col-md-6";
+              colCheck.innerHTML =
+                '<div class="form-check">' +
+                '<input class="form-check-input" type="checkbox" value="' +
+                item.id +
+                '" id="vul_' +
+                item.id +
+                '" onchange="toggleObsInput(' +
+                item.id +
+                ')">' +
+                '<label class="form-check-label" for="vul_' +
+                item.id +
+                '">' +
+                item.tipo_vulnerabilidade +
+                "</label>" +
+                "</div>";
+
+              // Coluna do input de observação
+              var colObs = document.createElement("div");
+              colObs.className = "col-md-6";
+              colObs.innerHTML =
+                '<input type="text" class="form-control" id="obs_vul_' +
+                item.id +
+                '" placeholder="Observação" disabled>';
+
+              row.appendChild(colCheck);
+              row.appendChild(colObs);
+              container.appendChild(row);
+            });
+          })
+          .getVulnerabilidades();
+      }
+
+      function carregarBeneficios() {
+        google.script.run
+          .withSuccessHandler(function (lista) {
+            var container = document.getElementById(
+              "beneficios-checkbox-group"
+            );
+            container.innerHTML = "";
+            lista.forEach(function (item) {
+              // Cria uma row para cada benefício
+              var row = document.createElement("div");
+              row.className = "row align-items-center mb-2";
+
+              // Coluna do checkbox
+              var colCheck = document.createElement("div");
+              colCheck.className = "col-md-6";
+              colCheck.innerHTML =
+                '<div class="form-check">' +
+                '<input class="form-check-input" type="checkbox" value="' +
+                item.id +
+                '" id="ben_' +
+                item.id +
+                '" onchange="toggleObsInputBeneficio(' +
+                item.id +
+                ')">' +
+                '<label class="form-check-label" for="ben_' +
+                item.id +
+                '">' +
+                item.tipo_beneficio +
+                "</label>" +
+                "</div>";
+
+              // Coluna do input de observação
+              var colObs = document.createElement("div");
+              colObs.className = "col-md-6";
+              colObs.innerHTML =
+                '<input type="text" class="form-control" id="obs_ben_' +
+                item.id +
+                '" placeholder="Observação" disabled>';
+
+              row.appendChild(colCheck);
+              row.appendChild(colObs);
+              container.appendChild(row);
+            });
+          })
+          .getBeneficios();
+      }
+
+      // Função para habilitar/desabilitar o input de observação conforme o checkbox
+      function toggleObsInputBeneficio(id) {
+        var checkbox = document.getElementById("ben_" + id);
+        var obsInput = document.getElementById("obs_ben_" + id);
+        if (checkbox.checked) {
+          obsInput.disabled = false;
+          obsInput.focus();
+        } else {
+          obsInput.disabled = true;
+          obsInput.value = "";
+        }
+      }
+      // Função para habilitar/desabilitar o input de observação conforme o checkbox
+      function toggleObsInput(id) {
+        var checkbox = document.getElementById("vul_" + id);
+        var obsInput = document.getElementById("obs_vul_" + id);
+        if (checkbox.checked) {
+          obsInput.disabled = false;
+          obsInput.focus();
+        } else {
+          obsInput.disabled = true;
+          obsInput.value = "";
+        }
+      }
+
+      function salvar() {
+        document.getElementById("save").disabled = true;
+        const dados = coletarDadosFormulario();
+        google.script.run
+          .withSuccessHandler(function (res) {
+            if (res && res.status === 0) {
+              document.getElementById("msg").style.color = "green";
+              document.getElementById("msg").innerText =
+                "Cadastro salvo com sucesso!";
+              // Fecha o modal após 1 segundo
+              setTimeout(function () {
+                google.script.host.close();
+              }, 1500);
+            } else {
+              document.getElementById("msg").innerText =
+                res && res.msg ? res.msg : "Erro ao salvar cadastro.";
+              document.getElementById("save").disabled = false;
+            }
+          })
+          .salvarCadastroPessoa(dados);
+      }
+    </script>
+  </body>
+</html>

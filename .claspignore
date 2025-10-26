@@ -1,0 +1,15 @@
+**/**
+#except the extensions…
+!dist/**
+dist/d/dInterfaces.js
+dist/f/fInterfaces.js
+!appsscript.json
+**/*.ts
+!**/*.html
+
+#ignore even valid files if in…
+.git/**
+node_modules/**
+
+#and Python virtual environments
+.venv/**
