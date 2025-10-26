@@ -10,3 +10,6 @@ Ao editar o código, buildar o projeto para compilar o JS:
 
 Enviar as modificações para o Apps Script
 `clasp push`
+
+Pra buscar a uma versão que já está no Apps Script
+`clasp pull`
