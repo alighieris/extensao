@@ -1,3 +1,8 @@
+export interface Retorno {
+	status: 0 | 1 | 2 | 3; // 0 - sucesso, 1 - erro de execução, 2 - erro de validação, 3 - não encontrado
+	msg: string;
+}
+
 export interface Vulnerabilidade {
 	id: number;
 	tipo_vulnerabilidade: string;

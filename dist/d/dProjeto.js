@@ -1,0 +1,31 @@
+ function createProjeto(nome_projeto) {
+    const database = getDataBase();
+    if (validaProjetoJaCadastratado(nome_projeto, database)) {
+        return { status: 2, msg: 'Projeto já cadastrado' };
+    }
+    if (nome_projeto === "" || nome_projeto == undefined || nome_projeto == null) {
+        return { status: 2, msg: 'Nome do projeto inválido' };
+    }
+    const projeto = {
+        id: geraIdNovoProjeto(database),
+        nome_projeto: nome_projeto,
+        ativo: 'TRUE',
+        contato: ''
+    };
+    try {
+        getSheet("dProjeto").appendRow(projetoAsList(projeto));
+        return { status: 0, msg: 'Projeto cadastrado com sucesso' };
+    }
+    catch (e) {
+        console.error("Erro ao adicionar projeto: " + e);
+        return { status: 1, msg: 'Erro ao adicionar projeto' };
+    }
+}
+function projetoAsList(projeto) {
+    return [
+        projeto.id,
+        projeto.nome_projeto,
+        projeto.ativo,
+        projeto.contato
+    ];
+}

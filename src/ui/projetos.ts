@@ -1,7 +1,8 @@
 import { Projeto } from "../d/dInterfaces";
+import { createProjeto } from "../d/dProjeto";
 import { Pessoa, PessoaProjeto } from "../f/fInterfaces";
 import { createPessoaProjeto, updatePessoaProjeto } from "../f/fPessoaProjeto";
-import { formatarCPF } from "../utils";
+import { createAlert, formatarCPF } from "../utils";
 
 
 interface TabelaVinculo {
@@ -126,3 +127,15 @@ function utils_formatDate(arg0: Date): string | undefined {
 	throw new Error("Function not implemented.");
 }
 
+function adicionarProjeto() {
+	const sheet = getAdicionarProjetoSheet();
+	const nomeProjeto = sheet?.getRange("C4").getValue();
+
+	const retorno = createProjeto(nomeProjeto);
+	createAlert(retorno.msg);
+}
+
+function getAdicionarProjetoSheet() {
+	const ss = SpreadsheetApp.getActiveSpreadsheet();
+	return ss.getSheetByName("Inclusão Projeto");
+}

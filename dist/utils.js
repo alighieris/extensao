@@ -53,3 +53,15 @@ function utils_formatDate(date) {
     str = str.padStart(11, "0");
     return str.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
+ function validaProjetoJaCadastratado(nomeProjeto, database = getDataBase()) {
+    const projetos = tableToObject("dProjeto", database);
+    return projetos.some((p) => p.nome_projeto === nomeProjeto);
+}
+ function geraIdNovoProjeto(database = getDataBase()) {
+    const projetos = tableToObject("dProjeto", database);
+    if (projetos.length === 0) {
+        return 1;
+    }
+    const ids = projetos.map((p) => p.id);
+    return Math.max(...ids) + 1;
+}

@@ -91,3 +91,13 @@ function limparLista() {
 function utils_formatDate(arg0) {
     throw new Error("Function not implemented.");
 }
+function adicionarProjeto() {
+    const sheet = getAdicionarProjetoSheet();
+    const nomeProjeto = sheet?.getRange("C4").getValue();
+    const retorno = createProjeto(nomeProjeto);
+    createAlert(retorno.msg);
+}
+function getAdicionarProjetoSheet() {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    return ss.getSheetByName("Inclusão Projeto");
+}
