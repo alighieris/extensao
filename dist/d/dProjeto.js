@@ -1,10 +1,10 @@
  function createProjeto(nome_projeto) {
     const database = getDataBase();
-    if (validaProjetoJaCadastratado(nome_projeto, database)) {
-        return { status: 2, msg: 'Projeto já cadastrado' };
-    }
     if (nome_projeto === "" || nome_projeto == undefined || nome_projeto == null) {
         return { status: 2, msg: 'Nome do projeto inválido' };
+    }
+    if (validaProjetoJaCadastratado(nome_projeto, database)) {
+        return { status: 2, msg: 'Projeto já cadastrado' };
     }
     const projeto = {
         id: geraIdNovoProjeto(database),
@@ -18,7 +18,7 @@
     }
     catch (e) {
         console.error("Erro ao adicionar projeto: " + e);
-        return { status: 1, msg: 'Erro ao adicionar projeto' };
+        return { status: 1, msg: 'Erro ao adicionar projeto, tente novamente mais tarde' };
     }
 }
 function projetoAsList(projeto) {
