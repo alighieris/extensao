@@ -102,14 +102,10 @@ function adicionarProjeto() {
     const listaProjetos = retornaTabelaProjetos();
     // Lista os projetos na planilha
     if (listaProjetos && listaProjetos.length > 0) {
-        // usa as chaves do primeiro objeto para definir a ordem das colunas
-        const keys = Object.keys(listaProjetos[0]);
-        const matriz = listaProjetos.map(p => keys.map(k => {
-            const v = p[k];
-            return v === null || v === undefined ? "" : v;
-        }));
+        // cria matriz com uma coluna contendo apenas nome_projeto
+        const matriz = listaProjetos.map(p => [p.nome_projeto ?? ""]);
         // escreve a matriz começando em B8 (linha 8, coluna 2)
-        sheet?.getRange(8, 2, matriz.length, keys.length).setValues(matriz);
+        sheet?.getRange(8, 2, matriz.length, 1).setValues(matriz);
     }
     createAlert(retorno.msg);
 }
