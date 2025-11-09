@@ -68,15 +68,19 @@ export function formatarCPF(cpf: string | number): string {
 }
 
 export function validaProjetoJaCadastratado(nomeProjeto: string, database = getDataBase()): boolean {
-  const projetos = tableToObject<Projeto>("dProjeto", database);
+  const projetos = retornaTabelaProjetos(database);
   return projetos.some((p) => p.nome_projeto === nomeProjeto);
 }
 
 export function geraIdNovoProjeto(database = getDataBase()): number {
-  const projetos = tableToObject<Projeto>("dProjeto", database);
+  const projetos = retornaTabelaProjetos(database);
   if (projetos.length === 0) {
     return 1;
   }
   const ids = projetos.map((p) => p.id);
   return Math.max(...ids) + 1;
+}
+
+export function retornaTabelaProjetos(database = getDataBase()): Projeto[] {
+  return tableToObject<Projeto>("dProjeto", database);
 }

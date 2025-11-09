@@ -2,7 +2,7 @@ import { Projeto } from "../d/dInterfaces";
 import { createProjeto } from "../d/dProjeto";
 import { Pessoa, PessoaProjeto } from "../f/fInterfaces";
 import { createPessoaProjeto, updatePessoaProjeto } from "../f/fPessoaProjeto";
-import { createAlert, formatarCPF } from "../utils";
+import { createAlert, formatarCPF, retornaTabelaProjetos } from "../utils";
 
 
 interface TabelaVinculo {
@@ -128,10 +128,30 @@ function utils_formatDate(arg0: Date): string | undefined {
 }
 
 function adicionarProjeto() {
+	// Adiciona um novo projeto
 	const sheet = getAdicionarProjetoSheet();
 	const nomeProjeto = sheet?.getRange("C4").getValue();
 
 	const retorno = createProjeto(nomeProjeto);
+
+	// Limpa a lista atual de projetos
+	sheet?.getRange("C4").clearContent();
+	sheet?.getRange("B8:H").clearContent();
+	const listaProjetos: any[] = retornaTabelaProjetos();
+	
+	// Lista os projetos na planilha
+	if (listaProjetos && listaProjetos.length > 0) {
+        // usa as chaves do primeiro objeto para definir a ordem das colunas
+        const keys = Object.keys(listaProjetos[0]);
+        const matriz = listaProjetos.map(p => keys.map(k => {
+            const v = p[k];
+            return v === null || v === undefined ? "" : v;
+        }));
+
+        // escreve a matriz começando em B8 (linha 8, coluna 2)
+        sheet?.getRange(8, 2, matriz.length, keys.length).setValues(matriz);
+    }
+
 	createAlert(retorno.msg);
 }
 
