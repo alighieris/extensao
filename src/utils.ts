@@ -1,3 +1,4 @@
+import { Projeto } from "./d/dInterfaces";
 import { Pessoa } from "./f/fInterfaces";
 
 
@@ -64,4 +65,22 @@ export function formatarCPF(cpf: string | number): string {
   let str = String(cpf).replace(/\D/g, "");
   str = str.padStart(11, "0");
   return str.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+}
+
+export function validaProjetoJaCadastratado(nomeProjeto: string, database = getDataBase()): boolean {
+  const projetos = retornaTabelaProjetos(database);
+  return projetos.some((p) => p.nome_projeto === nomeProjeto);
+}
+
+export function geraIdNovoProjeto(database = getDataBase()): number {
+  const projetos = retornaTabelaProjetos(database);
+  if (projetos.length === 0) {
+    return 1;
+  }
+  const ids = projetos.map((p) => p.id);
+  return Math.max(...ids) + 1;
+}
+
+export function retornaTabelaProjetos(database = getDataBase()): Projeto[] {
+  return tableToObject<Projeto>("dProjeto", database);
 }

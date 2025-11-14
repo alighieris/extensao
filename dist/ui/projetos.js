@@ -91,3 +91,25 @@ function limparLista() {
 function utils_formatDate(arg0) {
     throw new Error("Function not implemented.");
 }
+function adicionarProjeto() {
+    // Adiciona um novo projeto
+    const sheet = getAdicionarProjetoSheet();
+    const nomeProjeto = sheet?.getRange("C4").getValue();
+    const retorno = createProjeto(nomeProjeto);
+    // Limpa a lista atual de projetos
+    sheet?.getRange("C4").clearContent();
+    sheet?.getRange("B8:H").clearContent();
+    const listaProjetos = retornaTabelaProjetos();
+    // Lista os projetos na planilha
+    if (listaProjetos && listaProjetos.length > 0) {
+        // cria matriz com uma coluna contendo apenas nome_projeto
+        const matriz = listaProjetos.map(p => [p.nome_projeto ?? ""]);
+        // escreve a matriz começando em B8 (linha 8, coluna 2)
+        sheet?.getRange(8, 2, matriz.length, 1).setValues(matriz);
+    }
+    createAlert(retorno.msg);
+}
+function getAdicionarProjetoSheet() {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    return ss.getSheetByName("Inclusão Projeto");
+}
